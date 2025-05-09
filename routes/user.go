@@ -8,6 +8,7 @@ import (
 	"github.com/template/go-backend-gin-orm/dtos"
 	"github.com/template/go-backend-gin-orm/middlewares"
 	"github.com/template/go-backend-gin-orm/services"
+	"github.com/template/go-backend-gin-orm/utils"
 )
 
 func userRoutes(userGroup *gin.RouterGroup, userService *services.UserService) {
@@ -33,24 +34,19 @@ func userRoutes(userGroup *gin.RouterGroup, userService *services.UserService) {
 func updateUserInfo(userService *services.UserService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		// Get User from Token
-		claims, exists := ctx.Get("user")
-		if !exists {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			return
-		}
-		userClaims, ok := claims.(*dtos.UserClaims)
+		userClaims, ok := utils.GetUserClaimsFromContext(ctx)
 		if !ok {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user data"})
 			return
 		}
 
+		// Validate
 		var updateInfo dtos.UpdateUserInfoRequest
 		if err := ctx.ShouldBind(&updateInfo); err != nil {
 			ctx.JSON(http.StatusBadRequest, dtos.ErrorResponse{Message: err.Error(), Status: http.StatusBadRequest})
 			return
 		}
 
-		// Handle file upload
+		// Get file
 		file, err := ctx.FormFile("avatar")
 		if err != nil && err != http.ErrMissingFile {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file upload"})

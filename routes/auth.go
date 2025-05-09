@@ -14,7 +14,7 @@ import (
 // @BasePath /api
 // AuthRoutes defines authentication-related routes
 func authRoutes(authGroup *gin.RouterGroup, authService *services.AuthService) {
-	authGroup.POST("/register", registerUserHandler(authService))
+	authGroup.POST("/register", register(authService))
 	authGroup.POST("/login", login(authService))
 }
 
@@ -27,7 +27,7 @@ func authRoutes(authGroup *gin.RouterGroup, authService *services.AuthService) {
 // @Success 201 {object} map[string]interface{}
 // @Failure 400 {object} dtos.ErrorResponse "Bad Request"
 // @Router /auth/register [post]
-func registerUserHandler(authService *services.AuthService) gin.HandlerFunc {
+func register(authService *services.AuthService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var registerRequest dtos.RegisterRequest
 		//Validate

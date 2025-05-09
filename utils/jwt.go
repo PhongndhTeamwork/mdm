@@ -2,8 +2,10 @@ package utils
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/template/go-backend-gin-orm/config"
 	"github.com/template/go-backend-gin-orm/dtos"
@@ -42,4 +44,20 @@ func ValidateToken(tokenString string) (*dtos.UserClaims, error) {
 	}
 
 	return claims, nil
+}
+
+func GetUserClaimsFromContext(ctx *gin.Context) (*dtos.UserClaims, bool) {
+	claims, exists := ctx.Get("user")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return nil, false
+	}
+
+	userClaims, ok := claims.(*dtos.UserClaims) // Cast to type dtos.UserClaims
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user data"})
+		return nil, false
+	}
+
+	return userClaims, true
 }

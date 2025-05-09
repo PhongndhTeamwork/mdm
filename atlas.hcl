@@ -18,6 +18,7 @@ env "gorm" {
   migration {
     dir = "file://migrations"    
   }
+
   format {
     migrate {
       diff = "{{ sql . \"  \" }}"  
